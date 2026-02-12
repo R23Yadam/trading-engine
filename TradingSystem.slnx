@@ -1,0 +1,11 @@
+<Solution>
+  <Project Path="TradingSystem.Core/TradingSystem.Core.csproj" />
+  <Project Path="TradingSystem.Execution/TradingSystem.Execution.csproj" />
+  <Project Path="TradingSystem.Logging/TradingSystem.Logging.csproj" />
+  <Project Path="TradingSystem.MarketData/TradingSystem.MarketData.csproj" />
+  <Project Path="TradingSystem.Portfolio/TradingSystem.Portfolio.csproj" />
+  <Project Path="TradingSystem.Risk/TradingSystem.Risk.csproj" />
+  <Project Path="TradingSystem.Runner/TradingSystem.Runner.csproj" />
+  <Project Path="TradingSystem.Strategy/TradingSystem.Strategy.csproj" />
+  <Project Path="TradingSystem.Tests/TradingSystem.Tests.csproj" />
+</Solution>
