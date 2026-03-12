@@ -111,6 +111,8 @@ dotnet run --project TradingSystem.Runner -- --demo --duration 90
 dotnet run --project TradingSystem.Runner -- --replay logs/session_2025-01-15_14-30-00.jsonl
 ```
 
+Replay mode reprocesses the saved event stream and prints the same report/output shape as live mode, making regressions easier to diagnose.
+
 ### Run tests
 
 ```bash
