@@ -122,7 +122,7 @@ dotnet test
 ## Project Structure
 
 ```
-TradingSystem/
+.
 ├── TradingSystem.slnx                  # .NET 10 solution
 ├── TradingSystem.Core/                 # Shared types, interfaces, models
 │   ├── Enums/                          #   Side, SignalType, RiskAction
