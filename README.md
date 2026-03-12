@@ -1,8 +1,15 @@
 # Event-Driven Trading System
 
-A real-time, event-driven trading simulation built in C# / .NET 10. The system subscribes to simulated market data and processes it through a deterministic pipeline — from raw quotes to executed trades — with full JSONL logging and byte-for-byte reproducible replay.
+A real-time, event-driven trading simulation built in C# / .NET 10. The system subscribes to simulated market data and processes it through a deterministic pipeline, from raw quotes to executed trades, with full JSONL logging and byte-for-byte reproducible replay.
 
 The strategy (moving average crossover) is intentionally simple. **The architecture is the product.**
+
+## What This Repo Demonstrates
+
+- Composable, event-first system boundaries
+- Deterministic event replay for debugging and validation
+- Risk-gated order flow from signal to execution
+- Portfolio accounting with explicit cost tracking
 
 ## Architecture
 
