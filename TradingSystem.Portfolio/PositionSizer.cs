@@ -21,13 +21,9 @@ public class PositionSizer : IPositionSizer
         if (equity <= 0) return null;
 
         // Get current position and price for this symbol
-        decimal currentQty = 0;
-        decimal price = 0;
-        if (portfolio.Positions.TryGetValue(signal.Symbol, out var position))
-        {
-            currentQty = position.Quantity;
-            price = position.LastPrice;
-        }
+        var hasPosition = portfolio.Positions.TryGetValue(signal.Symbol, out var position);
+        decimal currentQty = hasPosition ? position!.Quantity : 0m;
+        decimal price = hasPosition ? position!.LastPrice : 0m;
         if (price <= 0 && portfolio.LastKnownPrices.TryGetValue(signal.Symbol, out var knownPrice))
             price = knownPrice;
         if (price <= 0)
