@@ -78,6 +78,12 @@ Every event implements `IEvent` with a `Timestamp` and `EventType` discriminator
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
+### Restore dependencies
+
+```bash
+dotnet restore
+```
+
 ### Run a live session
 
 ```bash
