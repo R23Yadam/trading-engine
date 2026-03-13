@@ -119,6 +119,14 @@ Replay mode reprocesses the saved event stream and prints the same report/output
 dotnet test
 ```
 
+## CLI Options
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--duration <seconds>` | Session length in seconds | `--duration 120` |
+| `--demo` | Runs Spectre.Console dashboard mode | `--demo` |
+| `--replay <file>` | Replays a prior JSONL session file | `--replay logs/session_2025-01-15_14-30-00.jsonl` |
+
 ## Project Structure
 
 ```
