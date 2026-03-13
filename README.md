@@ -272,6 +272,15 @@ All parameters are set in `Program.cs`:
 | `FeePerShare` | $0.005 | Per-share commission |
 | `StartingCash` | $100,000 | Initial portfolio equity |
 
+## Module Responsibilities
+
+- `TradingSystem.MarketData`: quote generation and spread modeling
+- `TradingSystem.Strategy`: bar aggregation and FMA/SMA signal generation
+- `TradingSystem.Portfolio`: sizing + position/cash/PnL accounting
+- `TradingSystem.Risk`: pre-trade validation checks and rejection metadata
+- `TradingSystem.Execution`: fill simulation with slippage/fees/latency
+- `TradingSystem.Logging`: JSONL persistence and deterministic replay support
+
 ## Testing
 
 78 unit tests across three modules:
