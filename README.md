@@ -11,6 +11,12 @@ The strategy (moving average crossover) is intentionally simple. **The architect
 - Risk-gated order flow from signal to execution
 - Portfolio accounting with explicit cost tracking
 
+## Determinism Guarantees
+
+- Uses `decimal` arithmetic throughout core financial paths.
+- Uses timestamp-driven event sequencing (not wall-clock timing) for replay consistency.
+- Uses counter-based IDs for orders/fills to keep outputs stable across runs.
+
 ## Architecture
 
 ```mermaid
