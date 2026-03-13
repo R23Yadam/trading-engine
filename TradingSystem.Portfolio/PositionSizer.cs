@@ -49,7 +49,8 @@ public class PositionSizer : IPositionSizer
             return null;
 
         // Convert to shares and round
-        decimal deltaShares = Math.Round(deltaNotional / price, 0);
+        var rawShares = deltaNotional / price;
+        decimal deltaShares = Math.Round(rawShares, 0);
         if (deltaShares == 0)
             return null;
 
