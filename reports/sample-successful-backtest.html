@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sample report — run scripts/run-backtests.sh for live metrics</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3db8e8;
+      --pos: #3ecf8e;
+      --neg: #f56565;
+    }
+    body {
+      font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      border-bottom: 1px solid #2a3545;
+      padding-bottom: 0.75rem;
+      margin-top: 0;
+    }
+    .meta { color: var(--muted); font-size: 0.9rem; margin: 0.35rem 0; }
+    .badge {
+      display: inline-block;
+      background: #2d3d52;
+      color: var(--accent);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .card {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      border: 1px solid #2a3545;
+    }
+    .card h2 {
+      margin: 0 0 0.65rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { text-align: left; padding: 0.35rem 0.5rem 0.35rem 0; border-bottom: 1px solid #2a3545; }
+    th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pnl-pos { color: var(--pos); font-weight: 600; }
+    .footer { margin-top: 1.5rem; font-size: 0.85rem; color: var(--muted); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Trading session report — 2025-01-15</h1>
+    <p class="meta"><span class="badge">Backtest</span> Virtual clock · fast-forward</p>
+    <p class="meta">RNG seed: <strong>7</strong> (illustrative — generate real reports with <code>dotnet run --project TradingSystem.Runner -- --backtest --seed 7 --report-html reports/out.html</code>)</p>
+    <p class="meta">Simulated horizon: <strong>2m 0s</strong> of market time</p>
+    <p class="meta">Wall-clock duration: 0h 00m 01s · Symbols: AAPL, MSFT, GOOGL</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Performance</h2>
+        <table>
+          <tr><th>Starting equity</th><td class="num">$100,000.00</td></tr>
+          <tr><th>Ending equity</th><td class="num">$100,184.22</td></tr>
+          <tr><th>Daily P&amp;L</th><td class="num pnl-pos">+$184.22 (+0.18%)</td></tr>
+          <tr><th>Realized P&amp;L</th><td class="num">+$112.40</td></tr>
+          <tr><th>Unrealized P&amp;L</th><td class="num">+$71.82</td></tr>
+          <tr><th>Max drawdown</th><td class="num">0.04%</td></tr>
+          <tr><th>High water mark</th><td class="num">$100,184.22</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Pipeline</h2>
+        <table>
+          <tr><th>Quotes</th><td class="num">2,880</td></tr>
+          <tr><th>Bars</th><td class="num">480</td></tr>
+          <tr><th>Signals</th><td class="num">14</td></tr>
+          <tr><th>Orders</th><td class="num">14</td></tr>
+          <tr><th>Fills</th><td class="num">12</td></tr>
+          <tr><th>Rejected</th><td class="num">2 (14.3%)</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Activity &amp; costs</h2>
+        <table>
+          <tr><th>Turnover</th><td class="num">$48,200.00 (48.2%)</td></tr>
+          <tr><th>Avg trades/min</th><td class="num">6.00</td></tr>
+          <tr><th>Peak trades/min</th><td class="num">8</td></tr>
+          <tr><th>Fees</th><td class="num">$3.42</td></tr>
+          <tr><th>Slippage</th><td class="num">$5.18</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      Real sessions write JSONL under <code>logs/</code> and optional HTML via <code>--report-html</code>. Batch: <code>./scripts/run-backtests.sh</code>
+    </div>
+  </div>
+</body>
+</html>

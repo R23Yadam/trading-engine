@@ -8,6 +8,7 @@ public class SimulatedMarketDataSource : IMarketDataSource
     private readonly MarketDataConfig _config;
     private readonly Dictionary<string, decimal> _currentMids;
     private readonly Random _random;
+    private DateTime? _virtualNow;
 
     public event Action<QuoteEvent>? OnQuote;
 
@@ -16,27 +17,50 @@ public class SimulatedMarketDataSource : IMarketDataSource
         _config = config;
         _random = seed.HasValue ? new Random(seed.Value) : new Random();
         _currentMids = new Dictionary<string, decimal>(config.StartingPrices);
+        if (config.UseVirtualTime)
+            _virtualNow = config.VirtualClockStart;
     }
 
     public async Task StartAsync(CancellationToken ct)
     {
+        var virtualAnchor = _config.VirtualClockStart;
+
         while (!ct.IsCancellationRequested)
         {
+            if (_config.UseVirtualTime
+                && _config.MaxSimulatedDuration is { } simLimit
+                && _virtualNow!.Value - virtualAnchor >= simLimit)
+            {
+                break;
+            }
+
             foreach (var symbol in _config.Symbols)
             {
                 if (ct.IsCancellationRequested) break;
 
-                var quote = GenerateQuote(symbol);
+                var ts = _config.UseVirtualTime ? _virtualNow!.Value : DateTime.UtcNow;
+                var quote = GenerateQuote(symbol, ts);
                 OnQuote?.Invoke(quote);
             }
 
-            try
+            if (_config.UseVirtualTime)
+                _virtualNow = _virtualNow!.Value.AddMilliseconds(_config.TickIntervalMs);
+
+            if (_config.FastForward)
             {
-                await Task.Delay(_config.TickIntervalMs, ct);
+                if (ct.IsCancellationRequested) break;
+                await Task.Yield();
             }
-            catch (TaskCanceledException)
+            else
             {
-                break;
+                try
+                {
+                    await Task.Delay(_config.TickIntervalMs, ct);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
             }
         }
     }
@@ -46,7 +70,7 @@ public class SimulatedMarketDataSource : IMarketDataSource
         return Task.CompletedTask;
     }
 
-    private QuoteEvent GenerateQuote(string symbol)
+    private QuoteEvent GenerateQuote(string symbol, DateTime timestamp)
     {
         var prevMid = _currentMids[symbol];
 
@@ -74,7 +98,7 @@ public class SimulatedMarketDataSource : IMarketDataSource
 
         return new QuoteEvent
         {
-            Timestamp = DateTime.UtcNow,
+            Timestamp = timestamp,
             Symbol = symbol,
             BidPrice = bidPrice,
             AskPrice = askPrice,

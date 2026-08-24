@@ -19,6 +19,9 @@ string? replayFile = null;
 var runDuration = TimeSpan.FromMinutes(2);
 bool demoMode = false;
 bool durationExplicitlySet = false;
+bool backtestMode = false;
+var rngSeed = 42;
+string? reportHtmlPath = null;
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -34,11 +37,23 @@ for (int i = 0; i < args.Length; i++)
         replayFile = args[i + 1];
     if (args[i] == "--demo")
         demoMode = true;
+    if (args[i] == "--backtest")
+        backtestMode = true;
+    if (args[i] == "--seed" && i + 1 < args.Length && int.TryParse(args[i + 1], out var seedParsed))
+        rngSeed = seedParsed;
+    if (args[i] == "--report-html" && i + 1 < args.Length)
+        reportHtmlPath = args[i + 1];
 }
 
 // Default to 60s when --demo is specified without explicit --duration
 if (demoMode && !durationExplicitlySet)
     runDuration = TimeSpan.FromSeconds(60);
+
+var isReplay = replayFile != null;
+if (demoMode)
+    backtestMode = false;
+if (isReplay)
+    backtestMode = false;
 
 // ── Configuration ──────────────────────────────────────────────
 var marketConfig = new MarketDataConfig
@@ -52,7 +67,10 @@ var marketConfig = new MarketDataConfig
         ["AAPL"] = 185.50m,
         ["MSFT"] = 420.00m,
         ["GOOGL"] = 175.00m
-    }
+    },
+    UseVirtualTime = backtestMode,
+    FastForward = backtestMode,
+    MaxSimulatedDuration = backtestMode ? runDuration : null
 };
 
 var barConfig = new BarAggregatorConfig { BarDuration = TimeSpan.FromSeconds(1) };
@@ -192,7 +210,6 @@ strategy.OnSignal += signal =>
 
 // ── Startup banner ────────────────────────────────────────────
 var startTime = DateTime.UtcNow;
-var isReplay = replayFile != null;
 
 System.Timers.Timer? ticker = null;
 
@@ -222,6 +239,12 @@ if (isReplay)
     Console.ResetColor();
     Console.WriteLine($"  Source:              {replayFile}");
 }
+else if (backtestMode)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"  Mode:               BACKTEST (virtual clock, fast-forward)");
+    Console.ResetColor();
+}
 else
 {
     Console.WriteLine($"  Mode:               LIVE (simulated)");
@@ -235,7 +258,12 @@ Console.WriteLine($"  Risk Limits:        {riskConfig.MaxPositionPct:P0} max pos
 Console.WriteLine($"  Execution:          {execConfig.SlippageBps} bps slippage | ${execConfig.FeePerShare}/share fee");
 
 if (!isReplay)
-    Console.WriteLine($"  Duration:           {runDuration.TotalSeconds:F0}s");
+    Console.WriteLine(backtestMode
+        ? $"  Simulated horizon:  {runDuration.TotalSeconds:F0}s market time"
+        : $"  Duration:           {runDuration.TotalSeconds:F0}s");
+
+if (!isReplay && !demoMode)
+    Console.WriteLine($"  RNG seed:           {rngSeed}");
 
 Console.WriteLine();
 Console.ForegroundColor = ConsoleColor.DarkCyan;
@@ -293,7 +321,7 @@ if (isReplay)
 }
 else if (demoMode)
 {
-    var source = new SimulatedMarketDataSource(marketConfig, seed: 42);
+    var source = new SimulatedMarketDataSource(marketConfig, seed: rngSeed);
     source.OnQuote += ProcessQuote;
 
     using var cts = new CancellationTokenSource(runDuration);
@@ -319,10 +347,12 @@ else if (demoMode)
 }
 else
 {
-    var source = new SimulatedMarketDataSource(marketConfig, seed: 42);
+    var source = new SimulatedMarketDataSource(marketConfig, seed: rngSeed);
     source.OnQuote += ProcessQuote;
 
-    using var cts = new CancellationTokenSource(runDuration);
+    using var cts = backtestMode
+        ? new CancellationTokenSource()
+        : new CancellationTokenSource(runDuration);
     Console.CancelKeyPress += (_, e) =>
     {
         e.Cancel = true;
@@ -373,3 +403,22 @@ SessionReport.Print(
     startTime,
     endTime,
     marketConfig.Symbols);
+
+if (reportHtmlPath != null)
+{
+    SessionReport.ExportHtml(
+        reportHtmlPath,
+        metrics,
+        portfolio.CurrentState,
+        logger.FilePath,
+        logger.EventCount,
+        startTime,
+        endTime,
+        marketConfig.Symbols,
+        rngSeed,
+        backtestMode,
+        backtestMode ? runDuration : null);
+    Console.ForegroundColor = ConsoleColor.DarkGray;
+    Console.WriteLine($"  HTML report:        {reportHtmlPath}");
+    Console.ResetColor();
+}
